@@ -1,4 +1,4 @@
-import { gamepadcontroller } from "./gamecontroller";
+import { gamepadctrl } from "../gamepadctrl";
 
 function runtest() {
 
@@ -15,9 +15,9 @@ function runtest() {
 
 
   if (playaDiv) {
-    console.log("controller are available?", gamepadcontroller.isAvailable() ? "yes" : "no");
+    console.log("controller are available?", gamepadctrl.isAvailable() ? "yes" : "no");
 
-    var controller = new gamepadcontroller("snes");
+    var controller = new gamepadctrl();
 
     controller
       .on('button:up', (_, args) => {
