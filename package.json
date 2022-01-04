@@ -1,6 +1,6 @@
 {
   "name": "symolo.gamepadctrl",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "simple lib for using a gamepad",
   "main": "dist/gamepadctrl.js",
   "types": "dist/symolo.gamepadctrl.d.ts",
@@ -10,7 +10,7 @@
     "build": "npm run clean && parcel build src/gamepadctrl.ts && tsc && api-extractor run --local --verbose && typedoc"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "parcel-bundler": "^1.12.5",
     "typedoc": "^0.22.10",

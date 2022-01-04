@@ -52,71 +52,7 @@ class controllerfactory {
   }
 }
 
-/**
- * class for manage pads 
- * dont forget to call unload if nessesary 
- * ```js
- * var controller = new gamepadctrl();
- * controller.unload();
- * controller = null;
- * ```
- * @public
- */
-export class gamepadctrl {
-
-  static isAvailable(): boolean { return !!navigator.getGamepads() }
-
-  private _padtype: string = "snes";
-
-  private _padList: Array<base_gamepad>;
-
-  public isActive: boolean = false;
-
-  constructor() {
-    this._padList = new Array<base_gamepad>();
-
-    window.addEventListener('gamepadconnected', (e: GamepadEventInit) => {
-      // console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
-      //   e.gamepad.index, e.gamepad.id,
-      //   e.gamepad.buttons.length, e.gamepad.axes.length);
-
-      const padToAdd = controllerfactory.getPadByType(this._padtype, e.gamepad, this as unknown as gamepadctrl);
-      this._padList.push(padToAdd);
-    });
-    window.addEventListener('gamepaddisconnected', (e: GamepadEventInit) => {
-      // console.log("Gamepad disconnected at index %d: %s. %d buttons, %d axes.",
-      //   e.gamepad.index, e.gamepad.id,
-      //   e.gamepad.buttons.length, e.gamepad.axes.length);
-      const toRemove = this._padList.find(i => i.index == e.gamepad.index);
-      if (toRemove)
-        this._padList.splice(this._padList.indexOf(toRemove));
-    });
-
-    this.isActive = true;
-    this.gamepadLoop();
-  }
-
-  public unload(): void {
-    this.isActive = false;
-  }
-
-  private gamepadLoop(): void {
-    this._padList.forEach(pad => pad.refresh());
-
-    if (this.isActive)
-      window.requestAnimationFrame(this.gamepadLoop.bind(this));
-  }
-
-  public getStates(): Array<any> {
-    const result: Array<any> = [];
-    this._padList.forEach(pad => {
-      result.push(pad.state());
-    });
-    return result;
-  }
-}
-
-class eventhandler<T> {
+class _eventhandler<T> {
   private _evtsubs: any;
   private _inevt: { [key: string]: boolean };
 
@@ -134,10 +70,10 @@ class eventhandler<T> {
   }
 
   fire<K extends keyof T>(event: K, args: T[K]): void {
+    if (typeof this._inevt === "undefined") this._inevt = {};
     try {
       if (!this._evtsubs) return;
       if (typeof (this._evtsubs as any)[event] === "undefined") return;
-      if (!this._inevt) this._inevt = {};
       if (this._inevt[event as string] === true) return;
       this._inevt[event as string] = true;
       const subscribers = (this._evtsubs as any)[event];
@@ -161,26 +97,70 @@ class eventhandler<T> {
   }
 }
 
-/** 
-* @public
-*/
-export interface gamepadctrl extends eventhandler<gamepad_event> { }
+/**
+ * class for manage pads 
+ * dont forget to call unload if nessesary 
+ * ```js
+ * var controller = new gamepadctrl();
+ * controller.unload();
+ * controller = null;
+ * ```
+ * @public
+ */
+export class gamepadctrl extends _eventhandler<gamepad_event> {
 
-// Apply the mixins into the base class via
-// the JS at runtime
-applyMixins(gamepadctrl, [eventhandler]);
+  static isAvailable(): boolean { return !!navigator.getGamepads() }
 
-// This can live anywhere in your codebase:
-function applyMixins(derivedCtor: any, constructors: any[]) {
-  constructors.forEach((baseCtor) => {
-    Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
-      Object.defineProperty(
-        derivedCtor.prototype,
-        name,
-        Object.getOwnPropertyDescriptor(baseCtor.prototype, name) ||
-        Object.create(null)
-      );
+  private _padtype: string = "snes";
+
+  private _padList: Array<base_gamepad>;
+
+  public isActive: boolean = false;
+
+  constructor() {
+    super();
+    this._padList = new Array<base_gamepad>();
+
+    window.addEventListener('gamepadconnected', (e: GamepadEventInit) => {
+      // console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
+      //   e.gamepad.index, e.gamepad.id,
+      //   e.gamepad.buttons.length, e.gamepad.axes.length);
+      const padToAdd = controllerfactory.getPadByType(this._padtype, e.gamepad, this as unknown as gamepadctrl);
+      this._padList.push(padToAdd);
     });
-  });
+    window.addEventListener('gamepaddisconnected', (e: GamepadEventInit) => {
+      // console.log("Gamepad disconnected at index %d: %s. %d buttons, %d axes.",
+      //   e.gamepad.index, e.gamepad.id,
+      //   e.gamepad.buttons.length, e.gamepad.axes.length);
+      const toRemove = this._padList.find(i => i.index == e.gamepad.index);
+      if (toRemove)
+        this._padList.splice(this._padList.indexOf(toRemove));
+    });
+
+    this.isActive = true;
+    this.gamepadLoop();
+  }
+
+  /**
+   * stop to watching loop the states wont updated anymore
+   */
+  public unload(): void {
+    this.isActive = false;
+  }
+
+  private gamepadLoop(): void {
+    this._padList.forEach(pad => pad.refresh());
+
+    if (this.isActive)
+      window.requestAnimationFrame(this.gamepadLoop.bind(this));
+  }
+
+  public getStates(): Array<any> {
+    const result: Array<any> = [];
+    this._padList.forEach(pad => {
+      result.push(pad.state());
+    });
+    return result;
+  }
 }
 

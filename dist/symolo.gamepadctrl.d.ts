@@ -5,7 +5,7 @@
  */
 declare type EventCallback<T> = (sender: any, event: T) => void;
 
-declare class eventhandler<T> {
+declare class _eventhandler<T> {
     private _evtsubs;
     private _inevt;
     on<K extends keyof T>(event: K, callback: EventCallback<T[K]>): this;
@@ -53,21 +53,18 @@ export declare interface gamepad_event {
  * ```
  * @public
  */
-export declare class gamepadctrl {
+export declare class gamepadctrl extends _eventhandler<gamepad_event> {
     static isAvailable(): boolean;
     private _padtype;
     private _padList;
     isActive: boolean;
     constructor();
+    /**
+     * stop to watching loop the states wont updated anymore
+     */
     unload(): void;
     private gamepadLoop;
     getStates(): Array<any>;
-}
-
-/**
- * @public
- */
-export declare interface gamepadctrl extends eventhandler<gamepad_event> {
 }
 
 export { }
