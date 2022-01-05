@@ -54,8 +54,8 @@ console.log("controller are available?", gamepadctrl.isAvailable() ? "yes" : "no
 let controller = new gamepadctrl();
 
 controller
-  .on('button:up', (_, args) => onsole.log('button:up', args))
-  .on('button:down', (_, args) => onsole.log('button:down', args));
+  .on('button:up', (_, args) => console.log('button:up', args))
+  .on('button:down', (_, args) => console.log('button:down', args));
 
 const myGameLoop = () => {
   const states = controller.getStates();
